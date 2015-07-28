@@ -6,6 +6,9 @@
 (defn apps-url [path] (str api-url "/apps" path))
 (def auth-creds [(str (System/getenv "API_EMAIL") "/token") token])
 
+(println "env vars!")
+(println api-url)
+
 (defn create-upload [app-zip-filename]
   (let [response (client/post (apps-url "/uploads.json")
                               {:basic-auth auth-creds
