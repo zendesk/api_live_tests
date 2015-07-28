@@ -1,5 +1,6 @@
 (ns api-live-tests.api
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [clojure.tools.trace :refer [trace-ns]]))
 
 (def token (System/getenv "API_TOKEN"))
 (def api-url (System/getenv "API_URL"))
@@ -8,6 +9,8 @@
 
 (println "env vars!")
 (println api-url)
+
+(trace-ns 'api-live-tests.api)
 
 (defn create-upload [app-zip-filename]
   (let [response (client/post (apps-url "/uploads.json")
@@ -40,7 +43,9 @@
     (:body response)))
 
 (defn app-id-when-job-completed [job-id]
+  (Thread/sleep 2000)
   (loop [job-status (get-job-status job-id)]
+    (Thread/sleep 2000)
     (case (:status job-status)
       "completed" (:app_id job-status)
       "failed" (do
@@ -54,7 +59,9 @@
     (app-id-when-job-completed job-status-id)))
 
 (defn installation-id-when-job-completed [job-id]
+  (Thread/sleep 2000)
   (loop [job-status (get-installation-job-status job-id)]
+    (Thread/sleep 2000)
     (case (:status job-status)
       "completed" (:installation_id job-status)
       "failed" (do
