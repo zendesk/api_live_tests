@@ -5,9 +5,11 @@
             [api-live-tests.generators :refer [app-gen]]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
-            [clojure.test.check :as tc]))
+            [clojure.tools.trace :refer [trace-ns]]))
 
 (def number-of-apps-to-try (or (System/getenv "NUMBER_OF_APPS_TO_TRY") 20))
+
+(trace-ns 'api-live-tests.api)
 
 (defspec apps-can-be-installed
          number-of-apps-to-try

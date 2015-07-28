@@ -10,5 +10,4 @@
     (println "uninstalled app")))
 
 (defn -main [& args]
-  (println "Starting API Live Tests")
   (install-via-api 6183 "Installation name"))

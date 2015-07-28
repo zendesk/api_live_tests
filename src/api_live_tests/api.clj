@@ -7,10 +7,7 @@
 (defn apps-url [path] (str api-url "/apps" path))
 (def auth-creds [(str (System/getenv "API_EMAIL") "/token") token])
 
-(println "env vars!")
-(println api-url)
 
-(trace-ns 'api-live-tests.api)
 
 (defn create-upload [app-zip-filename]
   (let [response (client/post (apps-url "/uploads.json")
@@ -75,7 +72,6 @@
                                 {:basic-auth auth-creds
                                  :as :json}
                                 http-options))]
-    (println response)
     (-> response :body :pending_job_id)))
 
 (defn start-app-install [app-id installation-name]
@@ -85,7 +81,6 @@
                                              :app_id app-id}
                                :content-type :json
                                :as :json})]
-    (println response)
     (-> response :body :pending_job_id)))
 
 (defn install-non-reqs-app [app-id installation-name]
@@ -95,7 +90,6 @@
                                              :app_id app-id}
                                :content-type :json
                                :as :json})]
-    (println response)
     (-> response :body :id)))
 
 (defn install-app [app-id installation-name]

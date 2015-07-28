@@ -63,25 +63,24 @@
 (defn valid-app? [app]
   (let [app-dir (serialize-app-to-tmpdir! app)
         zat-validate (sh "zat" "validate" :dir app-dir)]
-    (println (.getPath app-dir))
-    (println zat-validate)
     (= 0 (:exit zat-validate))))
 
 (defn zip [dir]
-  (println "Zipping up app from: " (.getPath dir))
-  (println (sh "zip" "-r" "app" "." :dir dir))
+  (sh "zip" "-r" "app" "." :dir dir)
   (file dir "app.zip"))
 
 
 (defn create-and-install-app [app]
+  (println "\n\n")
+  (println "Creating / installing app:")
+  (clojure.pprint/pprint app)
+  (println "\n")
   (destroy-all-apps)
   (let  [app-dir (serialize-app-to-tmpdir! app)
          zip-file (zip app-dir)
          app-name (:app-name app)
          app-id (upload-and-create-app zip-file app-name)
          install-id (install-app app-id "sample title")]
-    (println "app-id: " app-id)
-    (println "installation-id " install-id)
     install-id))
 
 
