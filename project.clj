@@ -11,5 +11,6 @@
                  [clj-http "2.0.0"]
                  [clj-statsd "0.3.10"]
                  [org.clojure/test.check "0.7.0"]
+                 [com.gfredericks/test.chuck "0.1.19"]
                  [org.clojure/tools.trace "0.7.8"]
                  [clj-time "0.10.0"]])
