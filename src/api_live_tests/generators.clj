@@ -8,7 +8,7 @@
             [api-live-tests.app-utils :refer [valid-app? app-installs?
                                               zip serialize-app-to-tmpdir!]]))
 
-(def not-empty-string '(str #".+"))
+(def not-empty-string '(str #"[^ ].+"))
 
 (def locale-gen (hg/generator '(or "en" "jp" "de")))
 (def author-gen
