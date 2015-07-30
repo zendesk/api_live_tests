@@ -7,7 +7,7 @@
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.tools.trace :refer [trace-ns]]))
 
-(def number-of-apps-to-try (or (System/getenv "NUMBER_OF_APPS_TO_TRY") 1))
+(def number-of-apps-to-try (or (Integer. (System/getenv "NUMBER_OF_APPS_TO_TRY")) 1))
 
 (trace-ns 'api-live-tests.api)
 
