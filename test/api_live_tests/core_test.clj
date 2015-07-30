@@ -2,12 +2,12 @@
   (:require [clojure.test :refer :all]
             [api-live-tests.core :refer :all]
             [api-live-tests.app-utils :refer [app-installs?]]
-            [api-live-tests.generators :refer [app-gen]]
+            [api-live-tests.generators :refer [app-gen generate-app]]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.tools.trace :refer [trace-ns]]))
 
-(def number-of-apps-to-try (or (System/getenv "NUMBER_OF_APPS_TO_TRY") 20))
+(def number-of-apps-to-try (or (System/getenv "NUMBER_OF_APPS_TO_TRY") 1))
 
 (trace-ns 'api-live-tests.api)
 
