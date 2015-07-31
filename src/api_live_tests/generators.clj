@@ -15,7 +15,7 @@
   (hg/generator (template {:name  ~not-empty-string
                            :email ~not-empty-string})))
 
-(defn manifest-gen [requirements-only]
+(defn manifest-gen [requirements-only parameters]
   (chuck-gen/for [default-locale locale-gen
                   author author-gen
                   private gen/boolean
@@ -27,6 +27,7 @@
                                        ["nav_bar"])
                   :author            author
                   :private           private
+                  :parameters parameters
                   :no-template       no-template
                   :framework-version (if requirements-only
                                        nil
@@ -77,12 +78,21 @@
                   :targets       targets
                   :triggers      triggers}))
 
+(def parameters-gen
+  (hg/generator (template
+                  {~not-empty-string {:type  "text"
+                                      :name ~not-empty-string
+                                      :required bool
+                                      :secure bool
+                                      :default ~not-empty-string}})))
+
 
 (def app-gen
-  (chuck-gen/for [:parallel [requirements requirements-gen
+  (chuck-gen/for [parameters (gen/vector parameters-gen)
+                  :parallel [requirements requirements-gen
                              app-name (hg/generator not-empty-string)]
                   requirements-only gen/boolean
-                  manifest (manifest-gen requirements-only)
+                  manifest (manifest-gen requirements-only parameters)
                   :let [app-js (not requirements-only)]]
    {:manifest     manifest
     :requirements requirements
@@ -94,3 +104,6 @@
 
 
 (defn generate-app [] (rand-nth (sample app-gen 20)))
+
+
+; TODO: if app has settings, install with values for those settings
