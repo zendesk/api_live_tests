@@ -8,11 +8,11 @@
             [api-live-tests.app-utils :refer [valid-app? app-installs?
                                               zip serialize-app-to-tmpdir!]]))
 
-(def not-empty-string '(str #"[^ ].+"))
+(def not-empty-string '(str #"[A-Za-z0-9][A-Za-z0-9 ]+"))
 
 (def locale-gen (hg/generator '(or "en" "jp" "de")))
 (def author-gen
-  (hg/generator (template {:name ~not-empty-string
+  (hg/generator (template {:name  ~not-empty-string
                            :email ~not-empty-string})))
 
 (defn manifest-gen [requirements-only]
@@ -46,14 +46,15 @@
                                       :email   "blah@hoo.com"
                                       :subject ~not-empty-string}})))
 
-(def triggers-gen
-  (hg/generator (template
-                  {~not-empty-string {:title   ~not-empty-string
-                                      :all     (vec (& {"field"    "status"
-                                                        "operator" "is"
-                                                        "value"    "open"}))
-                                      :actions (vec (& {"field"    "priority"
-                                                        "operator" "is"}))}})))
+(defn triggers-gen [custom-field-identifiers]
+  (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)]
+    (hg/generator (template
+                    {~not-empty-string {:title   ~not-empty-string
+                                        :all     (vec (& {"field"    (or ~@field-pointers "status")
+                                                          "operator" "is"
+                                                          "value"    "open"}))
+                                        :actions (vec (& {"field" "priority"
+                                                          "value" "high"}))}}))))
 
 
 (defn no-shared-keys [& maps]
@@ -66,9 +67,12 @@
 
 (def requirements-gen
   (chuck-gen/for [:parallel [ticket-fields ticket-fields-gen
-                             targets targets-gen
-                             triggers triggers-gen]
-                  :when (no-shared-keys ticket-fields targets triggers)]
+                             targets       targets-gen]
+
+                  triggers (triggers-gen (keys ticket-fields))
+
+                  :when ^{:max-tries 30} (no-shared-keys ticket-fields targets triggers)]
+
                  {:ticket_fields ticket-fields
                   :targets       targets
                   :triggers      triggers}))
@@ -80,13 +84,13 @@
                   requirements-only gen/boolean
                   manifest (manifest-gen requirements-only)
                   :let [app-js (not requirements-only)]]
-                 {:manifest     manifest
-                  :requirements requirements
-                  :templates    []
-                  :app-name     app-name
-                  :app-js       app-js
-                  :translations [(:default-locale manifest)]
-                  :assets       []}))
+   {:manifest     manifest
+    :requirements requirements
+    :templates    []
+    :app-name     app-name
+    :app-js       app-js
+    :translations [(:default-locale manifest)]
+    :assets       []}))
 
 
 (defn generate-app [] (rand-nth (sample app-gen 20)))
