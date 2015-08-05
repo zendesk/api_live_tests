@@ -27,7 +27,7 @@
                                        ["nav_bar"])
                   :author            author
                   :private           private
-                  :parameters parameters
+                  :parameters        parameters
                   :no-template       no-template
                   :framework-version (if requirements-only
                                        nil
@@ -37,7 +37,7 @@
 
 (def ticket-fields-gen
   (hg/generator (template
-                  {~not-empty-string {:type  "text"
+                  {~not-empty-string {:type  "checkbox"
                                       :title ~not-empty-string}})))
 
 (defn targets-gen [parameters]
@@ -53,9 +53,12 @@
   (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)]
     (hg/generator (template
                     {~not-empty-string {:title   ~not-empty-string
-                                        :all     (vec (& {"field"    (or ~@field-pointers "status")
-                                                          "operator" "is"
-                                                          "value"    "open"}))
+                                        :all     (vec (& (or {"field"    "status"
+                                                              "operator" "is"
+                                                              "value"    "open"}
+                                                             {"field"    (or ~@field-pointers)
+                                                              "operator" "is"
+                                                              "value"    (or "true" "false")})))
                                         :actions (vec (& {"field" "priority"
                                                           "value" "high"}))}}))))
 
