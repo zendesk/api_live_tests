@@ -52,15 +52,15 @@
 (defn triggers-gen [custom-field-identifiers]
   (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)]
     (hg/generator (template
-                    {~not-empty-string {:title   ~not-empty-string
-                                        :all     (vec (& (or {"field"    "status"
-                                                              "operator" "is"
-                                                              "value"    "open"}
-                                                             {"field"    (or ~@field-pointers)
-                                                              "operator" "is"
-                                                              "value"    (or "true" "false")})))
-                                        :actions (vec (& {"field" "priority"
-                                                          "value" "high"}))}}))))
+                    {~not-empty-string {:title      ~not-empty-string
+                                        :conditions {:all (vec (& (or {"field"    "status"
+                                                                       "operator" "is"
+                                                                       "value"    "open"}
+                                                                      {"field"    (or ~@field-pointers)
+                                                                       "operator" "is"
+                                                                       "value"    (or "true" "false")})))}
+                                        :actions    (vec (& {"field" "priority"
+                                                             "value" "high"}))}}))))
 
 
 (defn no-shared-keys [& maps]
@@ -102,16 +102,23 @@
                   requirements-only gen/boolean
                   manifest (manifest-gen requirements-only parameters)
                   :let [app-js (not requirements-only)]]
-   {:manifest     manifest
-    :requirements requirements
-    :templates    []
-    :app-name     app-name
-    :app-js       app-js
-    :translations [(:default-locale manifest)]
-    :assets       []}))
+                 {:manifest     manifest
+                  :requirements requirements
+                  :templates    []
+                  :app-name     app-name
+                  :app-js       app-js
+                  :translations [(:default-locale manifest)]
+                  :assets       []}))
+
+
+(defn install-gen [app-id]
+  (hg/generator (template {:app-id   ~app-id
+                           :settings {:name ~not-empty-string}
+                           :enabled  bool})))
 
 
 (defn generate-app [] (rand-nth (sample app-gen 20)))
+(defn generate-installation [app-id] (rand-nth (sample (install-gen app-id) 20)))
 
 
 ; TODO: if app has settings, install with values for those settings
