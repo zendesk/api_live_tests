@@ -1,5 +1,5 @@
 (ns api-live-tests.app-utils
-  (:require [api-live-tests.api :refer [upload-and-create-app destroy-all-apps install-app]]
+  (:require [api-live-tests.api :as api :refer [upload-and-create-app destroy-all-apps install-app]]
             [clojure.java.io :refer [file make-parents]]
             [clojure.java.shell :refer [sh]]
             [cheshire.core :refer [parse-string generate-string]]))
@@ -81,8 +81,11 @@
          app-name (:app-name app)
          app-id (upload-and-create-app zip-file app-name)
          install-id (install-app app-id "sample title")]
-    install-id))
+    {:app-id app-id :install-id install-id}))
 
 
 (defn app-installs? [app]
-  (pos? (create-and-install-app app)))
+  (let [{:keys [app-id install-id]} (create-and-install-app app)]
+    (and (pos? install-id)
+         (api/uninstall-app install-id)
+         (api/delete-app app-id))))
