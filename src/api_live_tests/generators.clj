@@ -40,12 +40,14 @@
                   {~not-empty-string {:type  "text"
                                       :title ~not-empty-string}})))
 
-(def targets-gen
-  (hg/generator (template
-                  {~not-empty-string {:type    "email_target"
-                                      :title   ~not-empty-string
-                                      :email   "blah@hoo.com"
-                                      :subject ~not-empty-string}})))
+(defn targets-gen [parameters]
+  (let [params-to-interpolate (map (comp (partial format "{{settings.%s}}") :name) parameters)]
+    (hg/generator (template
+                    {~not-empty-string {:type    "email_target"
+                                        :title   ~not-empty-string
+                                        :email   "blah@hoo.com"
+                                        :subject (or ~not-empty-string
+                                                     ~@params-to-interpolate)}}))))
 
 (defn triggers-gen [custom-field-identifiers]
   (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)]
@@ -66,9 +68,9 @@
          flatten
          (apply distinct?))))
 
-(def requirements-gen
+(defn requirements-gen [parameters]
   (chuck-gen/for [:parallel [ticket-fields ticket-fields-gen
-                             targets       targets-gen]
+                             targets (targets-gen parameters)]
 
                   triggers (triggers-gen (keys ticket-fields))
 
@@ -78,18 +80,21 @@
                   :targets       targets
                   :triggers      triggers}))
 
+
+
+
 (def parameters-gen
   (hg/generator (template
-                  {~not-empty-string {:type  "text"
-                                      :name ~not-empty-string
-                                      :required bool
-                                      :secure bool
-                                      :default ~not-empty-string}})))
+                  [{:type     "text"
+                    :name     ~not-empty-string
+                    :required bool
+                    :secure   bool
+                    :default  ~not-empty-string}])))
 
 
 (def app-gen
-  (chuck-gen/for [parameters (gen/vector parameters-gen)
-                  :parallel [requirements requirements-gen
+  (chuck-gen/for [parameters parameters-gen
+                  :parallel [requirements (requirements-gen parameters)
                              app-name (hg/generator not-empty-string)]
                   requirements-only gen/boolean
                   manifest (manifest-gen requirements-only parameters)
