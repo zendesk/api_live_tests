@@ -1,11 +1,19 @@
 (ns api-live-tests.api
+  (:use [clj-zendesk.core])
   (:require [clj-http.client :as client]
             [clojure.tools.trace :refer [trace-ns]]))
 
-(def token (System/getenv "API_TOKEN"))
-(def api-url (System/getenv "API_URL"))
-(defn apps-url [path] (str api-url "/apps" path))
-(def auth-creds [(str (System/getenv "API_EMAIL") "/token") token])
+(def token
+  (System/getenv "API_TOKEN"))
+
+(def api-url
+  (System/getenv "API_URL"))
+
+(defn apps-url
+  [path] (str api-url "/apps" path))
+;
+(def auth-creds
+  [(str (System/getenv "API_EMAIL") "/token") token])
 
 
 
@@ -47,7 +55,9 @@
       "completed" (:app_id job-status)
       "failed" (do
                  (println "FAILURE FAILURE FAILURE")
-                 (throw (str "Job failed: " (:message job-status))))
+                 (throw (do
+                          (System/exit 1)
+                          (str "Job failed: " (:message job-status)))))
       (recur (get-job-status job-id)))))
 
 (defn upload-and-create-app [app-zip-filename app-name]
@@ -118,6 +128,24 @@
     (get-in response [:body :apps])))
 
 
+(defn get-installations []
+  (let [response (client/get (apps-url (str "/installations.json"))
+                             {:basic-auth auth-creds
+                              :as :json})]
+    (get-in response [:body :installations])))
+
+
 (defn destroy-all-apps []
   (doseq [app-id (map :id (get-owned-apps))]
     (delete-app app-id)))
+
+(defn destroy-all-ticket-fields []
+  (doseq [ticketfield (get-all TicketFields)]
+    (when (and (not (:system-field-options ticketfield)) (:removable ticketfield)) (delete TicketField (:id ticketfield)))))
+
+(defn destroy-all-triggers []
+  (doseq [trigger (get-all Triggers)]
+    (delete Trigger (:id trigger))))
+
+(defn destroy-all-targets []
+  (dorun (pmap #(delete Target (:id %)) (get-all Targets))))

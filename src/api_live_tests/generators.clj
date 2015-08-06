@@ -3,7 +3,6 @@
             [com.gfredericks.test.chuck.generators :as chuck-gen]
             [clojure.tools.trace]
             [miner.herbert.generators :as hg]
-            [miner.herbert :as h]
             [backtick :refer [template]]
             [api-live-tests.app-utils :refer [valid-app? app-installs?
                                               zip serialize-app-to-tmpdir!]]))
@@ -38,6 +37,7 @@
 (def ticket-fields-gen
   (hg/generator (template
                   {~not-empty-string {:type  "checkbox"
+                                      :tag (str #"[A-Za-z0-9]+")
                                       :title ~not-empty-string}})))
 
 (defn targets-gen [parameters]
