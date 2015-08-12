@@ -1,7 +1,6 @@
 (ns api-live-tests.core-test
   (:require [clojure.test :refer :all]
             [api-live-tests.core :refer :all]
-            [api-live-tests.app-utils :refer [app-installs?]]
             [api-live-tests.generators :refer [app-gen generate-app journey-gen journey-gen-two]]
             [clojure.test.check.properties :as prop]
             [clojure.pprint :refer [pprint]]

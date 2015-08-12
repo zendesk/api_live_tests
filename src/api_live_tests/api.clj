@@ -76,14 +76,6 @@
                  (System/exit 1))
       (recur (get-installation-job-status job-id)))))
 
-(defn start-app-install-map [http-options]
-  (let [response (client/post (apps-url "/installations.json")
-                              (merge
-                                {:basic-auth auth-creds
-                                 :as :json}
-                                http-options))]
-    (-> response :body :pending_job_id)))
-
 (defn start-app-install [installation]
   (let [{:keys [settings app-id enabled]} installation
         response (client/post (apps-url "/installations.json")

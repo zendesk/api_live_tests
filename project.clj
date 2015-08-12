@@ -7,6 +7,7 @@
   :injections [(require 'spyscope.core)]
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [prismatic/plumbing "0.4.4"]
+                 [w01fe/sniper "0.1.0"]
                  [org.clojure/data.csv "0.1.2"]
                  [clj-http "2.0.0"]
                  [clj-statsd "0.3.10"]

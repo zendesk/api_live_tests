@@ -4,8 +4,6 @@
             [clojure.java.shell :refer [sh]]
             [cheshire.core :refer [parse-string generate-string]]))
 
-(defn mkdir [path] (.mkdir (java.io.File. path)))
-
 (defn mk-tmp-dir!
   "Creates a unique temporary directory on the filesystem. Typically in /tmp on
   *NIX systems. Returns a File object pointing to the new directory. Raises an
@@ -31,8 +29,9 @@
             (recur (inc num-attempts))))))))
 
 
-(defn hyphens-to-camel-case-name [method-name]
+(defn hyphens-to-camel-case-name
   "e.g. hello-world -> helloWorld"
+  [method-name]
   (clojure.string/replace method-name #"-(\w)"
                           #(clojure.string/upper-case (second %1))))
 
@@ -60,32 +59,6 @@
     (when app-js (.createNewFile (file dir "app.js")))
     dir))
 
-(defn valid-app? [app]
-  (let [app-dir (serialize-app-to-tmpdir! app)
-        zat-validate (sh "zat" "validate" :dir app-dir)]
-    (= 0 (:exit zat-validate))))
-
 (defn zip [dir]
   (sh "zip" "-r" "app" "." :dir dir)
   (file dir "app.zip"))
-
-
-(defn create-and-install-app [app]
-  (println "\n\n")
-  (println "Creating / installing app:")
-  (clojure.pprint/pprint app)
-  (println "\n")
-  (destroy-all-apps)
-  (let  [app-dir (serialize-app-to-tmpdir! app)
-         zip-file (zip app-dir)
-         app-name (:app-name app)
-         app-id (upload-and-create-app zip-file app-name)
-         install-id (install-app app-id "sample title")]
-    {:app-id app-id :install-id install-id}))
-
-
-(defn app-installs? [app]
-  (let [{:keys [app-id install-id]} (create-and-install-app app)]
-    (and (pos? install-id)
-         (api/uninstall-app install-id)
-         (api/delete-app app-id))))

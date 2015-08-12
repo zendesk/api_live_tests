@@ -12,8 +12,7 @@
             [miner.herbert.generators :as hg]
             [backtick :refer [template]]
             [clojure.pprint :refer [pprint]]
-            [api-live-tests.app-utils :refer [valid-app? app-installs?
-                                              zip serialize-app-to-tmpdir!]]))
+            [api-live-tests.app-utils :refer [zip serialize-app-to-tmpdir!]]))
 
 
 (def not-empty-string '(str #"[A-Za-z0-9][A-Za-z0-9 ]+"))
