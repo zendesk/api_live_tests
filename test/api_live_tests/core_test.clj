@@ -14,8 +14,11 @@
             [clojure.test.check.generators :as gen]
             [clojure.tools.trace :refer [trace-ns]]))
 
-;(def number-of-apps-to-try (or (Integer. (System/getenv "NUMBER_OF_JOURNEYS_TO_TAKE")) 1))
-;(def number-of-apps-to-try (or (Integer. (System/getenv "NUMBER_OF_JOURNEYS_TO_TAKE")) 1))
+(def number-of-journeys-to-take
+  (try
+    (Integer. (System/getenv "NUMBER_OF_JOURNEYS_TO_TAKE"))
+    (catch NumberFormatException _
+      1)))
 
 (trace-ns 'api-live-tests.api)
 (trace-ns 'api-live-tests.core-test)
@@ -50,6 +53,6 @@
 
 
 (defspec apps-can-be-installed
-         1
+         number-of-journeys-to-take
          (prop/for-all [journey journey-gen]
                        (journey-can-be-completed? journey)))
