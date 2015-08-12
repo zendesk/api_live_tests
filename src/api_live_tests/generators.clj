@@ -141,7 +141,6 @@
      :possibility-check (fn [state]
                           true)
      :generator         (fn [state] app-gen)
-     :thing-creator     (fn [state] (generate-app))
      :perform           (fn [before-state expected-state app-to-create]
                           (let [app-dir (serialize-app-to-tmpdir! app-to-create)
                                 zip-file (zip app-dir)
