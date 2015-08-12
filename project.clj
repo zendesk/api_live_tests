@@ -18,5 +18,5 @@
                  [org.clojure/tools.trace "0.7.8"]
                  [backtick "0.3.3"]
                  [debugger "0.1.7"]
-                 [clj-zendesk "0.2.0-SNAPSHOT"]
+                 [clj-zendesk "0.3.0-SNAPSHOT"]
                  [clj-time "0.10.0"]])
