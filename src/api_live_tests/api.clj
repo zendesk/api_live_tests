@@ -143,12 +143,12 @@
 
 (defn destroy-all-ticket-fields []
   (doseq [ticketfield (get-all TicketFields)]
-    (when (and (not (:system-field-options ticketfield)) (:removable ticketfield)) (delete TicketField (:id ticketfield)))))
+    (when (and (not (:system-field-options ticketfield)) (:removable ticketfield)) (delete-one TicketField (:id ticketfield)))))
 
 (defn destroy-all-triggers []
   (doseq [trigger (get-all Triggers)]
-    (delete Trigger (:id trigger))))
+    (delete-one Trigger (:id trigger))))
 
 (defn destroy-all-targets []
-  (dorun (pmap #(delete Target (:id %)) (get-all Targets))))
+  (dorun (pmap #(delete-one Target (:id %)) (get-all Targets))))
 
