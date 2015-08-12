@@ -55,9 +55,8 @@
       "completed" (:app_id job-status)
       "failed" (do
                  (println "FAILURE FAILURE FAILURE")
-                 (throw (do
-                          (System/exit 1)
-                          (str "Job failed: " (:message job-status)))))
+                 (println (str "Job failed: " (:message job-status)))
+                 (System/exit 1))
       (recur (get-job-status job-id)))))
 
 (defn upload-and-create-app [app-zip-filename app-name]
@@ -73,7 +72,8 @@
       "completed" (:installation_id job-status)
       "failed" (do
                  (println "FAILURE FAILURE FAILURE")
-                 job-status)
+                 (println (str "Job failed: " (:message job-status)))
+                 (System/exit 1))
       (recur (get-installation-job-status job-id)))))
 
 (defn start-app-install-map [http-options]
@@ -84,10 +84,12 @@
                                 http-options))]
     (-> response :body :pending_job_id)))
 
-(defn start-app-install [app-id installation-name]
-  (let [response (client/post (apps-url "/installations.json")
+(defn start-app-install [installation]
+  (let [{:keys [settings app-id enabled]} installation
+        response (client/post (apps-url "/installations.json")
                               {:basic-auth auth-creds
-                               :form-params {:settings {:name installation-name}
+                               :form-params {:settings settings
+                                             :enabled enabled
                                              :app_id app-id}
                                :content-type :json
                                :as :json})]
@@ -102,8 +104,8 @@
                                :as :json})]
     (-> response :body :id)))
 
-(defn install-app [app-id installation-name]
-  (let [job-id (start-app-install app-id installation-name)]
+(defn install-app [installation]
+  (let [job-id (start-app-install installation)]
     (installation-id-when-job-completed job-id)))
 
 
@@ -149,3 +151,4 @@
 
 (defn destroy-all-targets []
   (dorun (pmap #(delete Target (:id %)) (get-all Targets))))
+
