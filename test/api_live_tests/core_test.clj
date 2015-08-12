@@ -32,7 +32,6 @@
     (println "Number of apps and installations is as expected!")
     (println)))
 
-
 (defn journey-can-be-completed? [journey]
   (destroy-all-apps)
 
@@ -50,8 +49,7 @@
           {}
           journey))
 
-
 (defspec apps-can-be-installed
-         number-of-journeys-to-take
-         (prop/for-all [journey journey-gen]
-                       (journey-can-be-completed? journey)))
+  number-of-journeys-to-take
+  (prop/for-all [journey journey-gen]
+                (journey-can-be-completed? journey)))

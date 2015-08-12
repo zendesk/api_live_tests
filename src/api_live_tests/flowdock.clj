@@ -8,6 +8,5 @@
                                :external_user_name "Jenkins"}
                 :content-type :json}))
 
-
 (defn -main [message]
   (post-fd-message message))

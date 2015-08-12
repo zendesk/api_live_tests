@@ -28,13 +28,11 @@
             tmp-dir
             (recur (inc num-attempts))))))))
 
-
 (defn hyphens-to-camel-case-name
   "e.g. hello-world -> helloWorld"
   [method-name]
   (clojure.string/replace method-name #"-(\w)"
                           #(clojure.string/upper-case (second %1))))
-
 
 (defn keys-to-camel-case [data]
   (if (map? data)
@@ -42,7 +40,6 @@
           (for [[k v] data]
             [(hyphens-to-camel-case-name (name k)) (keys-to-camel-case v)]))
     data))
-
 
 (defn serialize-app-to-tmpdir! [{:keys [translations manifest requirements app-js] :as app}]
   (let [dir (mk-tmp-dir!)

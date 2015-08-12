@@ -14,7 +14,6 @@
             [clojure.pprint :refer [pprint]]
             [api-live-tests.app-utils :refer [zip serialize-app-to-tmpdir!]]))
 
-
 (def not-empty-string '(str #"[A-Za-z0-9][A-Za-z0-9 ]+"))
 
 (def locale-gen (hg/generator '(or "en" "jp" "de")))
@@ -27,38 +26,37 @@
                   author author-gen
                   private gen/boolean
                   no-template gen/boolean]
-                 {:requirements-only requirements-only
-                  :default-locale    default-locale
-                  :location          (if requirements-only
-                                       nil
-                                       ["nav_bar"])
-                  :author            author
-                  :private           private
-                  :parameters        parameters
-                  :no-template       no-template
-                  :framework-version (if requirements-only
-                                       nil
-                                       "1.0")}))
-
+    {:requirements-only requirements-only
+     :default-locale    default-locale
+     :location          (if requirements-only
+                          nil
+                          ["nav_bar"])
+     :author            author
+     :private           private
+     :parameters        parameters
+     :no-template       no-template
+     :framework-version (if requirements-only
+                          nil
+                          "1.0")}))
 
 (def ticket-field-gen
   (chuck-gen/for [tag (chuck-gen/string-from-regex #"[A-Za-z0-9]{8,12}")]
-                 [tag {:type  "checkbox"
-                       :tag   tag
-                       :title tag}]))
+    [tag {:type  "checkbox"
+          :tag   tag
+          :title tag}]))
 
 (def ticket-fields-gen
   (chuck-gen/for [ticket-fields (gen/vector ticket-field-gen)]
-                 (into {} ticket-fields)))
+    (into {} ticket-fields)))
 
 (defn targets-gen [parameters]
   (let [params-to-interpolate (map (comp (partial format "{{settings.%s}}") :name) parameters)]
     (hg/generator (template
-                    {~not-empty-string {:type    "email_target"
-                                        :title   ~not-empty-string
-                                        :email   "blah@hoo.com"
-                                        :subject (or ~not-empty-string
-                                                     ~@params-to-interpolate)}}))))
+                   {~not-empty-string {:type    "email_target"
+                                       :title   ~not-empty-string
+                                       :email   "blah@hoo.com"
+                                       :subject (or ~not-empty-string
+                                                    ~@params-to-interpolate)}}))))
 
 (defn triggers-gen [custom-field-identifiers]
   (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)
@@ -73,11 +71,10 @@
                      "operator" "is"
                      "value"    "open"})]
     (hg/generator (template
-                    {~not-empty-string {:title      ~not-empty-string
-                                        :conditions {:all (vec (& ~condition))}
-                                        :actions    (vec (& {"field" "priority"
-                                                             "value" "high"}))}}))))
-
+                   {~not-empty-string {:title      ~not-empty-string
+                                       :conditions {:all (vec (& ~condition))}
+                                       :actions    (vec (& {"field" "priority"
+                                                            "value" "high"}))}}))))
 
 (defn no-shared-keys [& maps]
   (if (some empty? maps)
@@ -95,21 +92,17 @@
 
                   :when ^{:max-tries 1000} (no-shared-keys ticket-fields targets triggers)]
 
-                 {:ticket_fields ticket-fields
-                  :targets       targets
-                  :triggers      triggers}))
-
-
-
+    {:ticket_fields ticket-fields
+     :targets       targets
+     :triggers      triggers}))
 
 (def parameters-gen
   (hg/generator (template
-                  [{:type     "text"
-                    :name     ~not-empty-string
-                    :required bool
-                    :secure   bool
-                    :default  ~not-empty-string}])))
-
+                 [{:type     "text"
+                   :name     ~not-empty-string
+                   :required bool
+                   :secure   bool
+                   :default  ~not-empty-string}])))
 
 (def app-gen
   (chuck-gen/for [parameters parameters-gen
@@ -118,23 +111,21 @@
                   requirements-only gen/boolean
                   manifest (manifest-gen requirements-only parameters)
                   :let [app-js (not requirements-only)]]
-                 {:manifest     manifest
-                  :requirements requirements
-                  :templates    []
-                  :app-name     app-name
-                  :app-js       app-js
-                  :translations [(:default-locale manifest)]
-                  :assets       []}))
-
+    {:manifest     manifest
+     :requirements requirements
+     :templates    []
+     :app-name     app-name
+     :app-js       app-js
+     :translations [(:default-locale manifest)]
+     :assets       []}))
 
 (defn install-gen [specific-app-gen]
   (chuck-gen/for [settings (hg/generator (template {:name ~not-empty-string}))
                   app specific-app-gen
                   enabled gen/boolean]
-                 {:app      app
-                  :settings settings
-                  :enabled  enabled}))
-
+    {:app      app
+     :settings settings
+     :enabled  enabled}))
 
 (defn generate-app [] (rand-nth (sample app-gen 2)))
 (defn generate-installation [app] (rand-nth (sample (install-gen app) 2)))
@@ -157,11 +148,11 @@
                                 app-name (:app-name app-to-create)
                                 app-id (upload-and-create-app zip-file app-name)]
                             (assoc expected-state :apps
-                                                  (map (fn [app]
-                                                         (if (= app app-to-create)
-                                                           (assoc app :id app-id)
-                                                           app))
-                                                       (:apps expected-state)))))
+                                   (map (fn [app]
+                                          (if (= app app-to-create)
+                                            (assoc app :id app-id)
+                                            app))
+                                        (:apps expected-state)))))
      :transform         (fn [state app]
                           (update-in state [:apps] conj app))}
     ; TODO: check response is correct
@@ -225,11 +216,11 @@
                                                                  (dissoc :app)
                                                                  (assoc :app-id (:id app-to-install))))]
                             (assoc expected-state :installations
-                                                  (map (fn [installation]
-                                                         (if (= installation installation-to-create)
-                                                           (assoc installation :id installation-id)
-                                                           installation))
-                                                       (:installations expected-state)))))
+                                   (map (fn [installation]
+                                          (if (= installation installation-to-create)
+                                            (assoc installation :id installation-id)
+                                            installation))
+                                        (:installations expected-state)))))
      :transform         (fn [state installation]
                           (update-in state [:installations] conj installation))}
     ;{:name              :uninstall-app
@@ -240,7 +231,7 @@
     ;                      (let [install-id (:id (rand-nth (:installations state)))]
     ;                        (update-in state [:installations]
     ;                                   (partial remove #(= (:id %) install-id)))))}
-    })
+})
 
 (defn jg [steps]
   (let [step-sym (fn [sym-name step-num]
@@ -255,19 +246,17 @@
                                 :let [~(step-sym "state" (inc step)) ((:transform ~action) ~state ~thing)]])))
         step-list (range 1 (inc steps))]
     (template
-      (let [state1 {}]
-        (chuck-gen/for [~@(apply concat (map gen-step step-list))]
+     (let [state1 {}]
+       (chuck-gen/for [~@(apply concat (map gen-step step-list))]
 
-                       ~(mapv (fn [step]
-                                [(step-sym "action" step) (step-sym "thing" step)])
-                              step-list))))))
-
+         ~(mapv (fn [step]
+                  [(step-sym "action" step) (step-sym "thing" step)])
+                step-list))))))
 
 (defmacro journey-gen1 [steps]
   (jg steps))
 
 (def journey-gen (journey-gen1 5))
 (def journey-gen-two (journey-gen1 2))
-
 
 ; TODO: if app has settings, install with values for those settings

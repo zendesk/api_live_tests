@@ -15,8 +15,6 @@
 (def auth-creds
   [(str (System/getenv "API_EMAIL") "/token") token])
 
-
-
 (defn create-upload [app-zip-filename]
   (let [response (client/post (apps-url "/uploads.json")
                               {:basic-auth auth-creds
@@ -100,13 +98,11 @@
   (let [job-id (start-app-install installation)]
     (installation-id-when-job-completed job-id)))
 
-
 (defn uninstall-app [installation-id]
   (client/delete (apps-url (str "/installations/" installation-id ".json"))
                  {:basic-auth auth-creds
                   :content-type :json
                   :as :json}))
-
 
 (defn delete-app [app-id]
   (client/delete (apps-url (str "/" app-id ".json"))
@@ -114,20 +110,17 @@
                   :content-type :json
                   :as :json}))
 
-
 (defn get-owned-apps []
   (let [response (client/get (apps-url (str "/owned.json"))
                              {:basic-auth auth-creds
                               :as :json})]
     (get-in response [:body :apps])))
 
-
 (defn get-installations []
   (let [response (client/get (apps-url (str "/installations.json"))
                              {:basic-auth auth-creds
                               :as :json})]
     (get-in response [:body :installations])))
-
 
 (defn destroy-all-apps []
   (doseq [app-id (map :id (get-owned-apps))]
