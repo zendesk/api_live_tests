@@ -155,27 +155,31 @@
      :transform         (fn [state app]
                           (update state :apps conj app))}
     ; TODO: check response is correct
-    ;{:name              :delete-app
-    ; :generator         (fn [state]
-    ;                      (gen/elements (:apps state)))
-    ; :possibility-check (fn [state]
-    ;                      (> (count (:apps state)) 0))
-    ; :thing-creator     (fn [state] (rand-nth (:apps state)))
-    ; :perform           (fn [before-state expected-state app-to-delete]
-    ;                      (pprint expected-state)
-    ;                      (let [created-app (first (filter (fn [app]
-    ;                                                         (= app-to-delete
-    ;                                                            (dissoc app :id)))
-    ;                                                       (:apps before-state)))]
-    ;                        (delete-app (:id created-app)))
-    ;                      expected-state)
-    ; :transform         (fn [state app]
-    ;                      (let [app-id (:id (rand-nth (:apps state)))]
-    ;                        (-> state
-    ;                            (update-in [:apps]
-    ;                                       (partial remove #(= (:id %) app-id)))
-    ;                            (update-in [:installations]
-    ;                                       (partial remove #(= (:app-id %) app-id))))))}
+    {:name              :delete-app
+     :generator         (fn [state]
+                          (gen/elements (:apps state)))
+     :possibility-check (fn [state]
+                          (> (count (:apps state)) 0))
+     :perform           (fn [before-state expected-state app-to-delete]
+                          (pprint expected-state)
+                          (let [created-app (first (filter (fn [app]
+                                                             (= app-to-delete
+                                                                (dissoc app :id)))
+                                                           (:apps before-state)))]
+                            (delete-app (:id created-app)))
+                          expected-state)
+     :transform         (fn [state app-to-delete]
+                          (let [app-to-delete-id (->> (:apps state)
+                                                      (filter (fn [app]
+                                                                (= (:name app)
+                                                                   (:name app-to-delete))))
+                                                      first
+                                                      :id)]
+                            (-> state
+                                (update-in [:apps]
+                                           (partial remove #(= (:id %) app-to-delete-id)))
+                                (update-in [:installations]
+                                           (partial remove #(= (:app-id %) app-to-delete-id))))))}
     ; gonna have some sort of assert associated with it?
     ; no! “types” are, like app or installation or whatever
     ; maybe will even split out into separate map at some stage
@@ -204,8 +208,6 @@
                                                      (or (not-installed? app)
                                                          (can-be-installed-twice? app))))]
                             (install-gen (gen/elements (filter appropriate-app? apps)))))
-     :thing-creator     (fn [state]
-                          (generate-installation (rand-nth (:apps state))))
      :perform           (fn [before-state expected-state installation-to-create]
                           (let [app-to-install (first (filter (fn [app]
                                                                 (= (:app installation-to-create)
@@ -266,7 +268,7 @@
 (defmacro journey-gen1 [steps]
   (jg steps))
 
-(def journey-gen (journey-gen1 5))
+(def journey-gen (journey-gen1 20))
 (def journey-gen-two (journey-gen1 2))
 
 ; TODO: if app has settings, install with values for those settings
