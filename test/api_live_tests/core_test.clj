@@ -19,6 +19,12 @@
     (catch NumberFormatException _
       1)))
 
+(def seed
+  (try
+    (Integer. (System/getenv "SEED"))
+    (catch NumberFormatException _
+      nil)))
+
 (trace-ns 'api-live-tests.api)
 (trace-ns 'api-live-tests.core-test)
 
@@ -50,6 +56,7 @@
           journey))
 
 (defspec apps-can-be-installed
-  number-of-journeys-to-take
+         { :num-tests number-of-journeys-to-take :seed seed }
+
   (prop/for-all [journey journey-gen]
                 (journey-can-be-completed? journey)))

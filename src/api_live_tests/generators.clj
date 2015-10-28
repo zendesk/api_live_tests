@@ -252,8 +252,9 @@
                    (let [action (step-sym "action" step)
                          state (step-sym "state" step)
                          thing (step-sym "thing" step)]
-                     (template [~action (gen/elements actions)
-                                :when ((:possibility-check ~action) ~state)
+                     (template [~action (gen/such-that (fn [action] ((:possibility-check action) ~state))
+                                                       (gen/elements actions)
+                                                       50)
                                 ~thing ((:generator ~action) ~state)
                                 :let [~(step-sym "state" (inc step)) ((:transform ~action) ~state ~thing)]])))
         step-list (range 1 (inc steps))]
