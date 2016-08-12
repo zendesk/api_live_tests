@@ -39,6 +39,7 @@
     (println)))
 
 (defn journey-can-be-completed? [journey]
+  (println "hello")
   (destroy-all-apps)
 
   (println "Undertaking journey:")
@@ -58,6 +59,7 @@
           journey))
 
 (facts "its a journey" :integration
-       (fact "that is happening" :integration
+       (fact "that it is happening" :integration
              (prop/for-all [journey journey-gen]
-                           (journey-can-be-completed? [journey journey-gen]))))
+                           (journey-can-be-completed? journey))
+             1 => 1))
