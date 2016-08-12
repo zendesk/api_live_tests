@@ -10,15 +10,15 @@
                                                 destroy-all-apps
                                                 uninstall-app]]
             [miner.herbert.generators :as hg]
-            [backtick :refer [template]]
-            [clojure.pprint :refer [pprint]]
+            [backtick :as bt]
+            ;[clojure.pprint :refer [pprint]]
             [api-live-tests.app-utils :refer [zip serialize-app-to-tmpdir!]]))
 
 (def not-empty-string '(str #"[A-Za-z0-9][A-Za-z0-9 ]+"))
 
 (def locale-gen (hg/generator '(or "en" "jp" "de")))
 (def author-gen
-  (hg/generator (template {:name  ~not-empty-string
+  (hg/generator (bt/template {:name  ~not-empty-string
                            :email ~not-empty-string})))
 
 (defn manifest-gen [requirements-only parameters]
@@ -51,7 +51,7 @@
 
 (defn targets-gen [parameters]
   (let [params-to-interpolate (map (comp (partial format "{{settings.%s}}") :name) parameters)]
-    (hg/generator (template
+    (hg/generator (bt/template
                     {~not-empty-string {:type    "email_target"
                                         :title   ~not-empty-string
                                         :email   "blah@hoo.com"
@@ -61,7 +61,7 @@
 (defn triggers-gen [custom-field-identifiers]
   (let [field-pointers (map (partial str "custom_fields_") custom-field-identifiers)
         condition (if (seq field-pointers)
-                    (template (or {"field"    "priority"
+                    (bt/template (or {"field"    "priority"
                                    "operator" "is"
                                    "value"    "high"}
                                   {"field"    (or ~@field-pointers)
@@ -70,7 +70,7 @@
                     {"field"    "status"
                      "operator" "is"
                      "value"    "open"})]
-    (hg/generator (template
+    (hg/generator (bt/template
                     {~not-empty-string {:title      ~not-empty-string
                                         :conditions {:all (vec (& ~condition))}
                                         :actions    (vec (& {"field" "priority"
@@ -97,7 +97,7 @@
                   :triggers      triggers}))
 
 (def parameters-gen
-  (hg/generator (template
+  (hg/generator (bt/template
                   [{:type     "text"
                     :name     ~not-empty-string
                     :required bool
@@ -120,7 +120,7 @@
                   :assets       []}))
 
 (defn install-gen [specific-app-gen]
-  (chuck-gen/for [settings (hg/generator (template {:name ~not-empty-string}))
+  (chuck-gen/for [settings (hg/generator (bt/template {:name ~not-empty-string}))
                   app specific-app-gen
                   enabled gen/boolean]
                  {:app      app
@@ -161,7 +161,8 @@
      :possibility-check (fn [state]
                           (> (count (:apps state)) 0))
      :perform           (fn [before-state expected-state app-to-delete]
-                          (pprint expected-state)
+                          (println expected-state)
+                          ;(pprint expected-state)
                           (let [created-app (first (filter (fn [app]
                                                              (= app-to-delete
                                                                 (dissoc app :id)))
@@ -252,13 +253,13 @@
                    (let [action (step-sym "action" step)
                          state (step-sym "state" step)
                          thing (step-sym "thing" step)]
-                     (template [~action (gen/such-that (fn [action] ((:possibility-check action) ~state))
+                     (bt/template [~action (gen/such-that (fn [action] ((:possibility-check action) ~state))
                                                        (gen/elements actions)
                                                        50)
                                 ~thing ((:generator ~action) ~state)
                                 :let [~(step-sym "state" (inc step)) ((:transform ~action) ~state ~thing)]])))
         step-list (range 1 (inc steps))]
-    (template
+    (bt/template
       (let [state1 {}]
         (chuck-gen/for [~@(apply concat (map gen-step step-list))]
 

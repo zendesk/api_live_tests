@@ -14,6 +14,7 @@
   [url text emoji username]
   (client/post url {:form-params {:payload (json/write-str {:text text :icon_emoji emoji :username username})}}))
 
+; need to apply for ability to post to a suitable channel in zendesk slack to use this properly.
 (defn -main [webhookurl text account]
   (if (= account "dev")
     (send-to-slack webhookurl text ":chicken:" "api-live-tests")

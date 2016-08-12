@@ -1,10 +1,10 @@
-(ns api-live-tests.core-test
-  (:require [clojure.test :refer :all]
+(ns api-live-tests.core-test2
+  (:require [midje.sweet :refer :all]
+            [clojure.test :refer :all]
             [api-live-tests.core :refer :all]
             [api-live-tests.generators :refer [app-gen generate-app journey-gen journey-gen-two]]
             [clojure.test.check.properties :as prop]
             ;[clojure.pprint :refer [pprint]]
-            [clojure.test.check.clojure-test :refer [defspec]]
             [api-live-tests.api :as api :refer [upload-and-create-app delete-app
                                                 install-app get-installations
                                                 get-owned-apps
@@ -26,7 +26,7 @@
       nil)))
 
 (trace-ns 'api-live-tests.api)
-(trace-ns 'api-live-tests.core-test)
+(trace-ns 'api-live-tests.core-test2)
 
 (defn assert-world-state-is-correct [state]
   (let [expected-apps (:apps state)
@@ -57,8 +57,7 @@
           {}
           journey))
 
-(defspec apps-can-be-installed
-         { :num-tests number-of-journeys-to-take :seed seed }
-
-  (prop/for-all [journey journey-gen]
-                (journey-can-be-completed? journey)))
+(facts "its a journey" :integration
+       (fact "that is happening" :integration
+             (prop/for-all [journey journey-gen]
+                           (journey-can-be-completed? [journey journey-gen]))))
