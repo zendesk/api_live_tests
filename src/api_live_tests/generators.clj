@@ -273,4 +273,19 @@
 (def journey-gen (journey-gen1 20))
 (def journey-gen-two (journey-gen1 2))
 
+; instance of (journey-gen1 1)
+(def journey-gen-three (let
+                         [state1 {}]
+                         (chuck-gen/for
+                           [action1
+                            (gen/such-that
+                              (fn [action] ((:possibility-check action) state1))
+                              (gen/elements actions)
+                              50)
+                            thing1
+                            ((:generator action1) state1)
+                            :let
+                            [state2 ((:transform action1) state1 thing1)]]
+                           [[action1 thing1]])))
+
 ; TODO: if app has settings, install with values for those settings

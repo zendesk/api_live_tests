@@ -3,10 +3,12 @@
   (:require [clj-http.client :as client]
             [clojure.tools.trace :refer [trace-ns]]))
 
-(def token
+;(def token "k6QeIe1N1Z2STtwOKXXgZp3fiL2WQAwknkk5Kzrf")
+
+(def token ;"KTz60uZSZroeK31N4m8iaR15E5slWbR5pDVkmtaN")
   (System/getenv "API_TOKEN"))
 
-(def api-url
+(def api-url ;"https://apps-manage-professional.zd-staging.com/api/v2")
   (System/getenv "API_URL"))
 
 (defn apps-url
@@ -114,12 +116,16 @@
   (let [response (client/get (apps-url (str "/owned.json"))
                              {:basic-auth auth-creds
                               :as :json})]
+    (print response)
+    (if response [:status] 200 (print "endpoint success! huzzah!\n"))
     (get-in response [:body :apps])))
 
 (defn get-installations []
   (let [response (client/get (apps-url (str "/installations.json"))
                              {:basic-auth auth-creds
                               :as :json})]
+    (print response)
+    (if response [:status] 200 (print "endpoint success! huzzah!\n"))
     (get-in response [:body :installations])))
 
 (defn destroy-all-apps []
